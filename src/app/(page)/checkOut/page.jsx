@@ -6,12 +6,34 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { v4 as uuidv4 } from "uuid";
-import { nanoid } from 'nanoid';
+import { nanoid } from "nanoid";
 
+import { loadStripe } from "@stripe/stripe-js";
+import { method } from "lodash";
 
-export default function Checkout() {
+import { useStripe, useElements } from "@stripe/react-stripe-js";
+
+const Checkout = () => {
   const router = useRouter();
+
+  const stripe = useStripe();
+  const elements = useElements();
+
+  // let stripePromise = null;
+
+  // let getStripe = ({ lineItems }) => {
+  //   if (!stripePromise) {
+  //     stripePromise = loadStripe(process.env.NEXT_PUBLIC_PUBLISHABLE_KEY);
+  //   }
+  //   return stripePromise;
+  // };
+  // const stripe = getStripe();
+  // stripe.redirectToCheckout({
+  //   mode: "payment",
+  //   lineItems,
+  //   successUrl: `${window.location.origin}?session_id={CHECKOUT_SESSION_ID}`,
+  //   cancelUrl: window.location.origin,
+  // });
 
   const { data, loading, refetch } = useQuery(GET_ALL_CARTITEM);
   const [addOrder] = useMutation(ADD_ORDER);
@@ -32,48 +54,92 @@ export default function Checkout() {
     setValue,
   } = useForm();
 
-  // Generate a short, unique ID
-const generateId = () => Number.parseInt(nanoid(8), 36);
+  //   // Generate a short, unique ID
+  // const generateId = () => Number.parseInt(nanoid(8), 36);
 
+  // const makePayment = async () => {
+  //   const stripe = await loadStripe(process.env.NEXT_PUBLIC_PUBLISHABLE_KEY);
+  // };
 
-  const formSubmit = (formData) => {
-    const newData = { ...formData, id: generateId() }; // Add id field with uuidv4 generated ID
+  const formSubmit = async (formData) => {
+    // const newData = { ...formData, id: generateId() }; // Add id field with uuidv4 generated ID
+    const newData = { ...formData };
     console.log("🚀 ~ formSubmit ~ data:", newData);
-    const {
-      id,
-      firstName,
-      lastName,
-      email,
-      address,
-      city,
-      postcode,
-      isSave,
-      noteForDelivery,
-    } = newData;
 
-    addOrder({
-      variables: {
-        input: {
-          userId: "65e976aeab8b682aa23d32ef",
-          firstName,
-          lastName,
-          email,
-          address,
-          city,
-          postcode: Number(postcode),
-          isSave,
-          noteForDelivery,
-        },
-      },
-    })
-      .then((res) => {
-        refetch();
-        console.log("🚀 ~ goToCheckout ~ res:", res);
-        router.push("/product");
-      })
-      .catch((error) => {
-        console.log("🚀 ~ goToCheckout ~ error:", error);
-      });
+    const stripe = await loadStripe(process.env.NEXT_PUBLIC_PUBLISHABLE_KEY);
+
+    
+
+    
+
+    const body = {
+      products: cart,
+    };
+
+    const headers = {
+      "Content-Type": "application/json",
+    };
+
+    const response = await fetch(
+      "http://localhost:3000/api/graphql",
+      {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(body),
+      }
+    );
+
+    const session = await response.json();
+
+    const result = stripe.redirectToCheckout({
+      sessionId: session.id,
+    });
+
+    if (result.error) {
+      console.log("🚀 ~ formSubmit ~ result:", result.error);
+    }
+
+    // const {
+    //   id,
+    //   firstName,
+    //   lastName,
+    //   email,
+    //   address,
+    //   city,
+    //   postcode,
+    //   cardNo,
+    //   cvv,
+    //   expiredDate,
+    // } = newData;
+
+    // addOrder({
+    //   variables: {
+    //     input: {
+    //       userDetails: {
+    //         userId: "65e976aeab8b682aa23d32ef",
+    //         firstName,
+    //         lastName,
+    //         email,
+    //         address,
+    //         city,
+    //         postcode: Number(postcode),
+    //       },
+    //       paymentDetails: {
+    //         cardNo,
+    //         cvv,
+    //         expiredDate,
+    //       },
+    //     },
+    //   },
+    // })
+    //   .then((res) => {
+    //     refetch();
+    //     console.log("🚀 ~ goToCheckout ~ res:", res);
+    //     router.push("/product");
+    //   })
+    //   .catch((error) => {
+    //     console.log("🚀 ~ goToCheckout ~ error:", error);
+    //   });
   };
 
   const handleRemoveCartItem = (_id) => {
@@ -90,7 +156,7 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
         console.log("🚀 ~ handleRemoveCartItem ~ error:", error);
       });
   };
-  
+
   return (
     <div>
       <div className="mt-20">
@@ -153,8 +219,10 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
                     </span>
                   </div>
                 </div>
-                <div className="mt-4">
-                  <div className="w-full">
+
+                <div className="space-x-0 lg:flex lg:space-x-4 mt-4">
+                  <div className="w-full lg:w-1/2">
+                    {/* <div className="w-full"> */}
                     <label
                       htmlFor="Email"
                       className="block mb-3 text-sm font-semibold text-gray-500"
@@ -178,6 +246,51 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
                     <span className="text-red-500 text-sm">
                       {errors?.email?.message}
                     </span>
+                    {/* </div> */}
+                  </div>
+
+                  <div className="flex justify-between w-full lg:w-1/2">
+                    <div className="">
+                      <label
+                        htmlFor="city"
+                        className="block mb-3 text-sm font-semibold text-gray-500"
+                      >
+                        City
+                      </label>
+                      <input
+                        name="city"
+                        type="text"
+                        placeholder="City"
+                        className="px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        {...register("city", {
+                          required: "city is required",
+                        })}
+                      />
+                      <span className="text-red-500 text-sm">
+                        {errors?.city?.message}
+                      </span>
+                    </div>
+
+                    <div className="">
+                      <label
+                        htmlFor="postcode"
+                        className="block mb-3 text-sm font-semibold text-gray-500"
+                      >
+                        Postcode
+                      </label>
+                      <input
+                        name="postcode"
+                        type="text"
+                        placeholder="Post Code"
+                        className="px-4 py-3 text-sm border border-gray-300 rounded lg:text-sm focus:outline-none focus:ring-1 focus:ring-blue-600"
+                        {...register("postcode", {
+                          required: "postcode is required",
+                        })}
+                      />
+                      <span className="text-red-500 text-sm">
+                        {errors?.postcode?.message}
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="mt-4">
@@ -203,7 +316,7 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
                     </span>
                   </div>
                 </div>
-                <div className="space-x-0 lg:flex lg:space-x-4">
+                {/* <div className="space-x-0 lg:flex lg:space-x-4">
                   <div className="w-full lg:w-1/2">
                     <label
                       htmlFor="city"
@@ -244,43 +357,107 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
                       {errors?.postcode?.message}
                     </span>
                   </div>
+                </div> */}
+
+                <div className="lg:col-span-2 mt-8">
+                  <h3 className="text-xl font-bold text-[#333]">
+                    Choose your payment method
+                  </h3>
+                  <div className="grid gap-4 sm:grid-cols-2 mt-6">
+                    <div className="flex items-center">
+                      <input
+                        type="radio"
+                        className="w-5 h-5 cursor-pointer"
+                        id="card"
+                        checked
+                      />
+                      <label
+                        for="card"
+                        className="ml-4 flex gap-2 cursor-pointer"
+                      >
+                        <img
+                          src="https://readymadeui.com/images/visa.webp"
+                          className="w-12"
+                          alt="card1"
+                        />
+                        <img
+                          src="https://readymadeui.com/images/american-express.webp"
+                          className="w-12"
+                          alt="card2"
+                        />
+                        <img
+                          src="https://readymadeui.com/images/master.webp"
+                          className="w-12"
+                          alt="card3"
+                        />
+                      </label>
+                    </div>
+                    {/* <div className="flex items-center">
+                      <input
+                        type="radio"
+                        className="w-5 h-5 cursor-pointer"
+                        id="paypal"
+                      />
+                      <label
+                        for="paypal"
+                        className="ml-4 flex gap-2 cursor-pointer"
+                      >
+                        <img
+                          src="https://readymadeui.com/images/paypal.webp"
+                          className="w-20"
+                          alt="paypalCard"
+                        />
+                      </label>
+                    </div> */}
+                  </div>
+                  {/* <form className="mt-8"> */}
+                  <div className="grid gap-6 my-4">
+                    <div className="grid sm:grid-cols-3 gap-6">
+                      <input
+                        type="number"
+                        placeholder="Card number"
+                        className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border rounded-md focus:border-[#007bff] outline-none"
+                        {...register("cardNo", {
+                          required: "card No is required",
+                        })}
+                      />
+                      <input
+                        type="number"
+                        placeholder="EXP."
+                        className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border rounded-md focus:border-[#007bff] outline-none"
+                        {...register("expiredDate", {
+                          required: "expiredDate is required",
+                        })}
+                      />
+                      <input
+                        type="number"
+                        placeholder="CVV"
+                        className="px-4 py-3.5 bg-white text-[#333] w-full text-sm border rounded-md focus:border-[#007bff] outline-none"
+                        {...register("cvv", {
+                          required: "cvv is required",
+                        })}
+                      />
+                    </div>
+                  </div>
+                  {/* </form> */}
                 </div>
-                <div className="flex items-center mt-4">
-                  <label className="flex items-center text-sm group text-heading">
-                    <input
-                      name="isSave"
-                      type="checkbox"
-                      className="w-5 h-5 border border-gray-300 rounded focus:outline-none focus:ring-1"
-                      {...register("isSave")}
-                    />
-                    <span className="ml-2">
-                      Save this information for next time
-                    </span>
-                  </label>
-                </div>
-                <div className="relative pt-3 xl:pt-6">
-                  <label
-                    htmlFor="note"
-                    className="block mb-3 text-sm font-semibold text-gray-500"
-                  >
-                    {" "}
-                    Notes (Optional)
-                  </label>
-                  <textarea
-                    name="noteForDelivery"
-                    className="flex items-center w-full px-4 py-3 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-600"
-                    rows="4"
-                    placeholder="Notes for delivery"
-                    {...register("noteForDelivery")}
-                  ></textarea>
-                </div>
+
                 <div className="mt-4">
-                  <button className="w-full px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900">
-                    Process
+                  <button className=" px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900">
+                    Pay Now
                   </button>
                 </div>
               </div>
             </form>
+
+            <div className="mt-4">
+              <button
+                className=" px-6 py-2 text-blue-200 bg-blue-600 hover:bg-blue-900"
+                onClick={makePayment}
+              >
+                Pay Now
+              </button>
+            </div>
           </div>
           {data && (
             <div className="flex flex-col w-full ml-0 lg:ml-12 lg:w-2/5">
@@ -347,4 +524,6 @@ const generateId = () => Number.parseInt(nanoid(8), 36);
       </div>
     </div>
   );
-}
+};
+
+export default Checkout;

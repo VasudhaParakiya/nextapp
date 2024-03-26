@@ -3,15 +3,20 @@ import { gql } from "@apollo/client";
 export const ADD_ORDER = gql`
   mutation AddOrder($input: addOrderInput) {
     addOrder(input: $input) {
-      userId
-      firstName
-      lastName
-      email
-      address
-      city
-      postcode
-      isSave
-      noteForDelivery
+      userDetails {
+        userId
+        firstName
+        lastName
+        email
+        address
+        city
+        postcode
+      }
+      paymentDetails {
+        cardNo
+        expiredDate
+        cvv
+      }
       cart {
         _id
         productId

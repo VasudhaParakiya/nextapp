@@ -24,14 +24,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    active: {
-      type: Boolean,
-      default: true,
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
-    },
     gender: {
       type: String,
       enum: ["male", "female"],
@@ -42,9 +34,14 @@ const userSchema = new Schema(
       required: true,
     },
     role: {
+      // type: mongoose.Schema.Types.ObjectId,
+      // ref: "Role",
       type: String,
-      enum: ["user", "admin"],
       default: "user",
+    },
+    verified: {
+      type: Boolean,
+      default: false,
     },
     dateOfBirth: {
       type: Date,

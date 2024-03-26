@@ -9,30 +9,60 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-function sendWelcomeEmail({ email, url, subject }) {
+export function sendWelcomeEmail({ email, url, subject }) {
   //   const text = "http://127.0.0.1:5173" + url;
   const mailOptions = {
     from: "vasudhapatoliya502@gmail.com",
     to: email,
     subject: subject,
-    text: `http://localhost:5173/${url}`,
+    text: `http://localhost:3000/${url}`,
   };
 
   return transporter.sendMail(mailOptions);
 }
 
 // otp
-function sendOTPEmail({ email, url, subject }) {
+export function sendOTPEmail({ email, subject, OTP }) {
   //   const text = "http://127.0.0.1:5173" + url;
-  const OTP = generateOTP();
+
+  // const OTP = generateOTP();
+
+  // 4 digit otp
 
   const mailOptions = {
     from: "vasudhapatoliya502@gmail.com",
     to: email,
-    subject: "OTP",
-    text: `your OTP is: ${OTP}`,
+    subject: subject,
+    text: `<p>your OTP is: <b> ${OTP} </b></p>`,
     //   subject: subject,
     //   text: `http://localhost:5173/${url}`,
+  };
+
+  return transporter.sendMail(mailOptions);
+
+  // transporter.sendMail(mailOptions, (err, info) => {
+  //   if (err) {
+  //     console.log("🚀 ~ returntransporter.sendMail ~ err:", err);
+  //     return err;
+  //   } else {
+  //     console.log("🚀 ~ returntransporter.sendMail ~ info:", info.response);
+  //     return info;
+  //   }
+  // });
+}
+
+export function sendPaymentDetails({ email, subject, text }) {
+  //   const text = "http://127.0.0.1:5173" + url;
+
+  // const OTP = generateOTP();
+
+  // 4 digit otp
+
+  const mailOptions = {
+    from: "vasudhapatoliya502@gmail.com",
+    to: email,
+    subject: subject,
+    text: text,
   };
 
   return transporter.sendMail(mailOptions);

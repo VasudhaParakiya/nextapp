@@ -23,6 +23,7 @@ import resolvers from "../../apollo/server/resolver/index";
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
+
   formatError: (error) => {
     const message = error.message
       .replace("SequelizeValidationError: ", "")
@@ -61,6 +62,10 @@ const handler = connectDBHandler(
     },
   })
 );
+
+// cron.schedule("*/10 * * * *", function () {
+//   console.log("Cron job running every 10 minutes");
+// });
 
 export { handler as GET, handler as POST };
 

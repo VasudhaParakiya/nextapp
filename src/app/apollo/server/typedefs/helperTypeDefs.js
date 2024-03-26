@@ -18,8 +18,25 @@ const helperTypeDef = gql`
     password: String!
   }
 
+  type emailOTP {
+    email: String
+    otp: String
+    message: String
+  }
+
+  input otpVerifyInput {
+    email: String
+    otp: String
+  }
+
+  type Query {
+    checkEmail(email: String): emailOTP
+  }
+
   type Mutation {
     loginUser(input: loginUserInput!): loginResult
+    otpVerify(input: otpVerifyInput): loginResult
+    reSendOTP(email: String): emailOTP
   }
 `;
 

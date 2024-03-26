@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useState } from "react";
 import { BsTrash3 } from "react-icons/bs";
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -17,24 +17,38 @@ import Loading from "@/app/components/Loading";
 import {
   DELETE_ALL,
   DELETE_CART_ITEM,
+  STRIPE_Q,
   UPDATE_QUANTITY,
 } from "@/app/apollo/client/mutation/cart.mutation";
 import { ADD_ORDER } from "@/app/apollo/client/mutation/order.mutation";
 import { useRouter } from "next/navigation";
+import { sessionStatus } from "@/utils/session";
+import { redirectToCheckout } from "../../api/stripe";
 // import { removeCartItem } from "../../features/shoppingcart/productCartSlice";
 
 export default function Cart() {
   const router = useRouter();
 
+  // useLayoutEffect(() => {
+  //   const session = sessionStatus;
+  //   if (!session) {
+  //     router.push("/login");
+  //   }
+  // }, []);
+  // sessionStatus
+
   const { data, loading, refetch } = useQuery(GET_ALL_CARTITEM);
+  // console.log("🚀 ~ Cart ~ data:", data);
   const [deleteItem] = useMutation(DELETE_CART_ITEM);
   const [updateQuntity] = useMutation(UPDATE_QUANTITY);
   const [deleteAll] = useMutation(DELETE_ALL);
   const [addOrder] = useMutation(ADD_ORDER);
+  const [createSession] = useMutation(STRIPE_Q);
 
   const totalAmount = data?.getAllCartItem?.totalAmount;
-  const getCartItem = data?.getAllCartItem?.cartItem;
-  console.log("🚀 ~ Cart ~ getCartItem:", getCartItem);
+  const getCartItem = data?.getAllCartItem?.cartItem.product;
+  // const getCartItem = data?.getAllCartItem?.cartItem[0]?.product;
+  // console.log("🚀 ~ Cart ~ getCartItem:", getCartItem);
 
   const User_id = Number("65e96f7cce250e8cd044648a");
 
@@ -42,10 +56,10 @@ export default function Cart() {
     refetch();
   }, [data]);
 
-  const handleRemoveCartItem = (_id) => {
+  const handleRemoveCartItem = (productId) => {
     deleteItem({
       variables: {
-        _id,
+        productId,
       },
     })
       .then((res) => {
@@ -62,7 +76,7 @@ export default function Cart() {
       updateQuntity({
         variables: {
           input: {
-            _id: cartItem._id,
+            productId: cartItem.productId,
             quantity: cartItem.quantity - 1,
           },
         },
@@ -78,11 +92,12 @@ export default function Cart() {
   };
 
   const handleAddQuantity = (cartItem) => {
+    // console.log("🚀 ~ handleAddQuantity===== ~ cartItem:",cartItem);
     if (cartItem.quantity < 5) {
       updateQuntity({
         variables: {
           input: {
-            _id: cartItem._id,
+            productId: cartItem.productId,
             quantity: cartItem.quantity + 1,
           },
         },
@@ -108,8 +123,11 @@ export default function Cart() {
       });
   };
 
-  const goToCheckout = () => {
-    router.push("/checkOut");
+  const goToCheckout = async () => {
+    const createSeesion = await createSession();
+    const sessionId = createSeesion.data.createSession.sessionId;
+    // console.log("🚀 ~ goToCheckout ~ sessionId:", sessionId);
+    redirectToCheckout(sessionId);
   };
   // const dispatch = useDispatch();
   // const getCartItem = useSelector((state) => state.cart.cartItem);
@@ -238,7 +256,9 @@ export default function Cart() {
                         <button
                           className="px-2 py-0 text-red-100 bg-red-600 rounded"
                           // onClick={() => handleRemoveCartItem(cartItem?.id)}
-                          onClick={() => handleRemoveCartItem(cartItem?._id)}
+                          onClick={() =>
+                            handleRemoveCartItem(cartItem?.productId)
+                          }
                         >
                           x
                         </button>

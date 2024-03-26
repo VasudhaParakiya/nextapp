@@ -7,6 +7,8 @@ import productTypeDefs from "./productTypeDefs";
 import userTypeDefs from "./userTypeDefs";
 import cartTypeDefs from "./cartTypeDefs";
 import orderTypeDefs from "./orderTypeDefs";
+import roleTypeDefs from "./roleTypeDefs";
+import stripeTypeDef from "./stripeTypeDefs";
 
 const typeDefs = mergeTypeDefs([
   userTypeDefs,
@@ -17,6 +19,8 @@ const typeDefs = mergeTypeDefs([
   productTypeDefs,
   cartTypeDefs,
   orderTypeDefs,
+  roleTypeDefs,
+  stripeTypeDef,
 ]);
 
 export default typeDefs;

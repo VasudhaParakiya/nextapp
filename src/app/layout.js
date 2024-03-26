@@ -10,6 +10,13 @@ import { FilterProvider } from "./(page)/contextAPI/context/productFilterContect
 import { Provider } from "react-redux";
 import store from "./(page)/store/store";
 
+import { getServerSession } from "next-auth";
+import SessionProvider from "@/utils/sessionProvider";
+import { AuthProvider } from "./context/authContext";
+
+// import { SessionProvider } from "next-auth/react";
+// import { ClerkProvider } from "@clerk/nextjs/dist/types/components.server";
+
 const inter = Inter({ subsets: ["latin"] });
 
 // export const metadata = {
@@ -18,15 +25,27 @@ const inter = Inter({ subsets: ["latin"] });
 // };
 
 export default function RootLayout({ children }) {
+  // console.log("🚀 ~ RootLayout ~ session:", session);
+
+  // const session = getServerSession();
   return (
+    // <ClerkProvider>
     <html lang="en">
       <body className={inter.className}>
-        <Header />
         {/* {children} */}
+        {/* <SessionProvider session={session}> */}
+        {/* <SessionProvider session={session}> */}
+        <Header />
         <ApolloProvider client={client}>
-          <Provider store={store}>{children}</Provider>
+          <AuthProvider>
+            {/* <Provider store={store}>{children}</Provider> */}
+            {children}
+          </AuthProvider>
         </ApolloProvider>
+        {/* </SessionProvider> */}
+        {/* </SessionProvider> */}
       </body>
     </html>
+    // </ClerkProvider>
   );
 }

@@ -9,8 +9,9 @@ const userTypeDefs = gql`
     password: String
     gender: Gender
     hobby: [String!]
-    role: Role
+    role: RoleUser
     dateOfBirth: String
+    verified: Boolean
     # profile: String
     createdAt: String
     updatedAt: String
@@ -21,7 +22,7 @@ const userTypeDefs = gql`
     female
   }
 
-  enum Role {
+  enum RoleUser {
     admin
     user
   }
@@ -34,6 +35,7 @@ const userTypeDefs = gql`
     gender: Gender
     hobby: [String!]
     dateOfBirth: String
+    # role: ID
   }
 
   input updateUserInput {

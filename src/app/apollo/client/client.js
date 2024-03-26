@@ -28,7 +28,7 @@ const authLink = setContext((_, { headers }) => {
   return {
     headers: {
       ...headers,
-      token: token ? `Bearer ${token}` : "",
+      authorization: token ? token : "",
     },
   };
 });
@@ -45,17 +45,18 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 
 const httpLink = createHttpLink({
   uri: "/api/graphql",
-  credentials: "same-origin",
+  // credentials: "same-origin",
 });
 
 const client = new ApolloClient({
   ssrMode: typeof window === "undefined",
-  link: ApolloLink.from([authLink, errorLink, httpLink]),
-  defaultOptions: {
-    query: {
-      fetchPolicy: "cache-and-network",
-    },
-  },
+  // link: ApolloLink.from([authLink, errorLink, httpLink]),
+  link: authLink.concat(httpLink),
+  // defaultOptions: {
+  //   query: {
+  //     fetchPolicy: "cache-and-network",
+  //   },
+  // },
   cache: new InMemoryCache({ addTypename: false }),
 });
 

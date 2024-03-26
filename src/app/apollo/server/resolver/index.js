@@ -6,7 +6,8 @@ import brandResolver from "./brandResolver";
 import dummyProductResolvers from "./dummyapiResolver";
 import productResolver from "./productResolver";
 import cartResolver from "./cartResolver";
-import orderResolver from "./orderResolver";
+import roleResolver from "./roleResolver";
+import stripeResolver from "./stripeResolver";
 
 const resolvers = mergeResolvers([
   userResolver,
@@ -16,7 +17,9 @@ const resolvers = mergeResolvers([
   // dummyProductResolvers,
   productResolver,
   cartResolver,
-  orderResolver,
+  // orderResolver,
+  roleResolver,
+  stripeResolver,
 ]);
 
 export default resolvers;

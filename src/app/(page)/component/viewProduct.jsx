@@ -17,23 +17,23 @@ import Loading from "@/app/components/Loading";
 // import { useRouter } from "next/router";
 
 export default function ViewProduct(props) {
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const router = useRouter();
   const { product, structure, loading } = props;
 
-  const addToCart = (product) => {
-    // e.preventDefault();
+  // const addToCart = (product) => {
+  //   // e.preventDefault();
 
-    dispatch(
-      addCartItem({
-        id: product._id,
-        productName: product.productName,
-        image: product?.productImage,
-        price: product.price,
-      })
-    );
-    router.push("/cart");
-  };
+  //   dispatch(
+  //     addCartItem({
+  //       id: product._id,
+  //       productName: product.productName,
+  //       image: product?.productImage,
+  //       price: product.price,
+  //     })
+  //   );
+  //   router.push("/cart");
+  // };
 
   return (
     <>

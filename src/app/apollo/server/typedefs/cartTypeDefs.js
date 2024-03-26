@@ -3,6 +3,11 @@ import gql from "graphql-tag";
 const cartTypeDefs = gql`
   type Cart {
     _id: ID
+    userId: ID
+    product: [CartProduct]
+  }
+
+  type CartProduct {
     productId: ID
     productName: String
     image: String
@@ -20,7 +25,7 @@ const cartTypeDefs = gql`
   }
 
   input updateCartItemInput {
-    _id: ID
+    productId: ID
     quantity: Int
   }
 
@@ -31,7 +36,8 @@ const cartTypeDefs = gql`
   type getCartResult {
     # totalItem:Int
     totalAmount: Int
-    cartItem: [Cart!]!
+    # cartItem: [Cart!]!
+    cartItem: Cart
   }
 
   type Query {
@@ -41,7 +47,7 @@ const cartTypeDefs = gql`
   type Mutation {
     addToCartItem(input: addToCartInput): Cart
     updateCartItem(input: updateCartItemInput): Cart
-    deleteCartItem(_id: ID): deleteMsg
+    deleteCartItem(productId: ID): deleteMsg
     deleteCart: deleteMsg
   }
 `;

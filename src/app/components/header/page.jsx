@@ -1,7 +1,35 @@
+// import { useUser } from "@clerk/nextjs";
+"use client";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect } from "react";
+import { useSession, signIn, signOut } from "next-auth/react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Header() {
+  const router = useRouter();
+  // const { token } = useAuthContext();
+  // console.log("🚀 ~ Header ~ token:", token);
+
+  // const token = Cookies.get("token");
+
+  // const { user, isLoaded } = useUser();
+  // const { data: session } = useSession();
+
+  const token = localStorage.getItem("token");
+  // console.log("🚀 ~ Header ~ token:", token);
+
+  useEffect(() => {
+    console.log("useEffect running");
+  }, [token]);
+
+  const removeCookie = (e) => {
+    e.preventDefault();
+    Cookies.remove("token");
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
+
   return (
     <header className="bg-indigo-500 text-white">
       <nav
@@ -41,10 +69,10 @@ export default function Header() {
           </button>
         </div>
         <div className="hidden lg:flex lg:gap-x-12">
-          <a href="#" className="text-sm font-semibold leading-6 ">
+          <a href="/" className="text-sm font-semibold leading-6 ">
             Home
           </a>
-          <a href="#" className="text-sm font-semibold leading-6 ">
+          <a href="/about" className="text-sm font-semibold leading-6 ">
             About
           </a>
           <a href="/product" className="text-sm font-semibold leading-6 ">
@@ -52,12 +80,53 @@ export default function Header() {
           </a>
         </div>
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-          <a href="/cart" className="text-sm font-semibold leading-6  me-2">
+          <a href="/cart" className="text-sm font-semibold leading-6  ">
             Cart
           </a>
-          <a href="#" className="text-sm font-semibold leading-6 ">
+          {/* <a href="/login" className="text-sm font-semibold leading-6  mx-2">
             Login
           </a>
+          <a
+            href="#"
+            className="text-sm font-semibold leading-6 "
+            onClick={removeCookie}
+          >
+            Logout
+          </a> */}
+          {!token ? (
+            <>
+              <a
+                href="/login"
+                className="text-sm font-semibold leading-6  mx-2"
+              >
+                Login
+              </a>
+            </>
+          ) : (
+            <>
+              <button
+                href="#"
+                className="text-sm font-semibold leading-6 mx-2 "
+                onClick={removeCookie}
+              >
+                Logout
+              </button>
+            </>
+          )}
+
+          {/* {session ? (
+            <>
+              Signed in as <br />
+              <button onClick={() => signOut()}>Sign out</button>
+            </>
+          ) : (
+            <></>
+          )} */}
+          {/* {isLoaded && user && (
+            <>
+              <button>logout</button>
+            </>
+          )} */}
         </div>
       </nav>
     </header>

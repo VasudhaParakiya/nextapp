@@ -5,12 +5,16 @@ export const GET_ALL_CARTITEM = gql`
       totalAmount
       cartItem {
         _id
-        productId
-        productName
-        image
-        price
-        quantity
-        totalPrice
+        userId
+
+        product {
+          productId
+          productName
+          image
+          price
+          quantity
+          totalPrice
+        }
       }
     }
   }

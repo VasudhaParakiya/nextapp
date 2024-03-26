@@ -16,10 +16,14 @@ import Loading from "@/app/components/Loading";
 import { ADD_TO_CART } from "@/app/apollo/client/mutation/cart.mutation";
 
 export default function SingleProduct() {
+  // console.log("🚀 ~ SingleProduct ~ params:", params);
   const router = useParams();
   const navigate = useRouter();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [que, setQue] = useState(1);
+
+  // const userId = JSON.parse(localStorage.getItem("user"))._id;
+  // console.log("🚀 ~ SingleProduct ~ userId:", userId);
   // console.log("====Router", router);
 
   const { data, loading } = useQuery(GET_SINGLE_PRODUCT, {
@@ -56,12 +60,13 @@ export default function SingleProduct() {
       })
         .then((res) => {
           console.log("🚀 ~ handleAddToCart ~ res:", res);
+          navigate.push("/cart");
         })
         .catch((error) => {
           console.log("🚀 ~ handleAddToCart ~ error:", error);
         });
     }
-    navigate.push("/cart");
+    //
   };
 
   // const addToCart = (e) => {
@@ -190,10 +195,7 @@ export default function SingleProduct() {
                 </div>
 
                 <div>
-                  <ProductQuantity
-                    que={que}
-                    setQue={setQue}
-                  />
+                  <ProductQuantity que={que} setQue={setQue} />
                 </div>
 
                 {product?.inStock > 0 && (
