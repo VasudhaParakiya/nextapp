@@ -1,13 +1,14 @@
 // import { useUser } from "@clerk/nextjs";
 "use client";
 import Image from "next/image";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSession, signIn, signOut } from "next-auth/react";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 export default function Header() {
   const router = useRouter();
+  const [token, setToken] = useState("");
   // const { token } = useAuthContext();
   // console.log("🚀 ~ Header ~ token:", token);
 
@@ -16,17 +17,19 @@ export default function Header() {
   // const { user, isLoaded } = useUser();
   // const { data: session } = useSession();
 
-  const token = localStorage.getItem("token");
+  // const token = localStorage.getItem("token");
   // console.log("🚀 ~ Header ~ token:", token);
 
   useEffect(() => {
     console.log("useEffect running");
+    setToken(localStorage.getItem("token"));
   }, [token]);
 
   const removeCookie = (e) => {
     e.preventDefault();
     Cookies.remove("token");
     localStorage.removeItem("token");
+    setToken(""); 
     router.push("/login");
   };
 
